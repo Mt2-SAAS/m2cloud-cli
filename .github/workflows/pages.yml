@@ -1,0 +1,29 @@
+# Publish install.sh to GitHub Pages on every release, so the one-liner
+#   curl -fsSL https://Mt2-SAAS.github.io/m2cloud-cli/install.sh | sh
+# always serves the installer matching the latest release.
+name: Pages
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: mkdir -p _site && cp install.sh _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment
