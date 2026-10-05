@@ -26,6 +26,25 @@ Verify a downloaded binary manually:
 sha256 -c checksums.txt   # FreeBSD (use sha256sum on Linux)
 ```
 
+## Configuration
+
+Grab the annotated example from this release and edit it:
+
+```sh
+curl -fsSLO https://github.com/Mt2-SAAS/m2cloud-cli/releases/latest/download/m2cloud.example.toml
+```
+
+Then validate (the file references secret files that must exist and be mode
+0600 — create them first):
+
+```sh
+m2cloud config validate m2cloud.example.toml
+```
+
+Key points: every command takes `--config <path>` explicitly (no default
+path); passwords go in `password_file` (preferred) or `password_env`, never
+on the command line; `agent.api_endpoint` is your m2cloud control plane URL.
+
 ## Downloads
 
 - `m2cloud-freebsd-amd64`

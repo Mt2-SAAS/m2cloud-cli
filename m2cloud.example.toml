@@ -1,0 +1,45 @@
+# m2cloud agent configuration — example
+#
+# Copy to /etc/m2cloud/m2cloud.toml (or anywhere) and edit. Validate with:
+#
+#   m2cloud config validate /etc/m2cloud/m2cloud.toml
+#
+# Every command takes the config path explicitly — there is no default path:
+#
+#   m2cloud pair <token> --config /etc/m2cloud/m2cloud.toml
+#   m2cloud run --config /etc/m2cloud/m2cloud.toml
+#
+# Secrets never go on the command line (shell history + process table).
+# Each database section sets its password through EXACTLY ONE of:
+#   password_file = "/etc/m2cloud/secrets/account_password"   # preferred (mode 0600)
+#   password_env  = "M2_ACCOUNT_PASSWORD"                      # containers
+#   password      = "..."                                      # local tests only (warned)
+
+[agent]
+# Local state directory: identity.json, identity.key (0600) and the
+# idempotency store. Absolute path, owned by the service account.
+data_dir = "/var/lib/m2cloud"
+
+# One of: DEBUG, INFO, WARN, ERROR, CRITICAL.
+log_level = "INFO"
+
+# The Control API this installation pairs and talks to. Absolute https:// URL
+# (http:// is only accepted for loopback hosts: localhost, 127.0.0.1, ::1).
+# `m2cloud pair --endpoint ...` overrides it; there is no default host.
+api_endpoint = "https://api.m2cloud.example"
+
+[database.account]
+# The Metin2 account database (accounts, login).
+host = "127.0.0.1"
+port = 3306
+database = "account"
+user = "m2cloud_account"
+password_file = "/etc/m2cloud/secrets/account_password"
+
+[database.player]
+# The Metin2 player database (characters, guilds, rankings).
+host = "127.0.0.1"
+port = 3306
+database = "player"
+user = "m2cloud_player"
+password_file = "/etc/m2cloud/secrets/player_password"
