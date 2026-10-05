@@ -95,7 +95,14 @@ verify_sha256 "$TMP/$ASSET" "$EXPECTED" || fail "checksum mismatch for $ASSET �
 # ── install ──────────────────────────────────────────────────────────────────
 printf '==> installing to %s/%s\n' "$INSTALL_DIR" "$BIN_NAME"
 mkdir -p "$INSTALL_DIR" || fail "cannot create $INSTALL_DIR"
-$SUDO install -m 0755 "$TMP/$ASSET" "$INSTALL_DIR/$BIN_NAME" || fail "install failed (need root for /usr/local/bin?)"
+# Only elevate when the target directory is not writable by the current user
+# (a user-specified M2_INSTALL_DIR or ~/.local/bin must not require root).
+if [ ! -w "$INSTALL_DIR" ] || { [ -e "$INSTALL_DIR/$BIN_NAME" ] && [ ! -w "$INSTALL_DIR/$BIN_NAME" ]; }; then
+  [ -n "$SUDO" ] || [ "$(id -u)" = 0 ] || fail "no write access to $INSTALL_DIR and no doas/sudo available"
+  $SUDO install -m 0755 "$TMP/$ASSET" "$INSTALL_DIR/$BIN_NAME" || fail "install failed"
+else
+  install -m 0755 "$TMP/$ASSET" "$INSTALL_DIR/$BIN_NAME" || fail "install failed"
+fi
 
 case ":$PATH:" in
   *":$INSTALL_DIR:"*) ;;
