@@ -1,6 +1,9 @@
-# Publish install.sh to GitHub Pages on every release, so the one-liner
-#   curl -fsSL https://Mt2-SAAS.github.io/m2cloud-cli/install.sh | sh
-# always serves the installer matching the latest release.
+# Publish the CLI docs site + install.sh to GitHub Pages on every release:
+#   https://mt2-saas.github.io/m2cloud-cli/          ← mkdocs site
+#   https://mt2-saas.github.io/m2cloud-cli/install.sh ← one-liner installer
+# The docs tree (docs/ + mkdocs.yml) and install.sh are synced here from the
+# private m2cloud repo by its release pipeline's mirror job — never hand-edit
+# them in this repo.
 name: Pages
 on:
   release:
@@ -21,7 +24,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
-      - run: mkdir -p _site && cp install.sh _site/
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Build docs site
+        run: |
+          pip install 'mkdocs-material==9.7.7' 'mkdocs<2'
+          mkdocs build --strict
+      - name: Stage site
+        run: mkdir -p _site && cp -r site/* _site/ && cp install.sh _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
