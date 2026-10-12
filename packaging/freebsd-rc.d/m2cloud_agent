@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# PROVIDE: m2cloud_agent
+# REQUIRE: NETWORKING DAEMON
+# KEYWORD: shutdown
+#
+# Add the following to /etc/rc.conf(.local) to enable the service:
+#
+#   m2cloud_agent_enable="YES"
+#
+# Optional overrides (see below for defaults):
+#
+#   m2cloud_agent_config="/usr/local/etc/m2cloud/agent.toml"
+#   m2cloud_agent_user="m2cloud"
+#   m2cloud_agent_group="m2cloud"
+
+. /etc/rc.subr
+
+name="m2cloud_agent"
+rcvar="m2cloud_agent_enable"
+
+load_rc_config "$name"
+
+: ${m2cloud_agent_enable:="NO"}
+: ${m2cloud_agent_config:="/usr/local/etc/m2cloud/agent.toml"}
+: ${m2cloud_agent_user:="m2cloud"}
+: ${m2cloud_agent_group:="m2cloud"}
+
+pidfile="/var/run/${name}.pid"
+command="/usr/sbin/daemon"
+procname="/usr/local/bin/m2cloud"
+
+# `m2cloud run` never daemonizes itself (ADR-009): it stays in the foreground
+# and daemon(8) supervises it as the dedicated user, tracking it with a
+# pidfile so `rc.d` stop/status work.
+command_args="-f -p ${pidfile} -u ${m2cloud_agent_user} ${procname} run --config ${m2cloud_agent_config}"
+
+start_precmd="m2cloud_agent_prestart"
+
+m2cloud_agent_prestart()
+{
+	if [ ! -f "${m2cloud_agent_config}" ]; then
+		err 1 "m2cloud_agent: config file ${m2cloud_agent_config} does not exist"
+	fi
+}
+
+run_rc_command "$1"

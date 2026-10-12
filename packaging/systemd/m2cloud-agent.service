@@ -1,0 +1,55 @@
+[Unit]
+Description=M2 Cloud agent (m2cloud run)
+Documentation=https://github.com/Mt2-SAAS/m2cloud
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=m2cloud
+Group=m2cloud
+
+# `m2cloud run` never daemonizes itself (ADR-009): systemd is the supervisor,
+# the binary stays in the foreground and Restart=always brings it back after a
+# crash, a lost connection is handled internally with backoff (ADR-011).
+ExecStart=/usr/local/bin/m2cloud run --config /etc/m2cloud/agent.toml
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+# StateDirectory creates and owns /var/lib/m2cloud (mode 0700) for this unit;
+# the installation identity (identity.json, identity.key) lives there at 0600
+# (ADR-009, ADR-004 — the private key must never be group/world readable).
+StateDirectory=m2cloud
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/m2cloud
+UMask=0077
+
+# Hardening. The agent only needs outbound network access, its state
+# directory and read access to its config file; everything else is locked
+# down.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/m2cloud
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target

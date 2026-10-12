@@ -1,0 +1,21 @@
+# Example only — not wired into the repository's root compose.yaml (that one
+# runs local *development* infrastructure, not a customer's agent). Copy this
+# file to the target host, adjust the paths and `docker compose up -d`.
+services:
+  m2cloud-agent:
+    image: m2cloud-agent:latest
+    build:
+      context: ../..
+      dockerfile: packaging/docker/Dockerfile
+    restart: unless-stopped
+    # No secrets in the image or in this file: the config references a
+    # password file, which is bind-mounted alongside it.
+    volumes:
+      - m2cloud-state:/var/lib/m2cloud
+      - ./agent.toml:/etc/m2cloud/agent.toml:ro
+      - ./secrets:/etc/m2cloud/secrets:ro
+    entrypoint: ["/usr/local/bin/m2cloud", "run"]
+    command: ["--config", "/etc/m2cloud/agent.toml"]
+
+volumes:
+  m2cloud-state:
