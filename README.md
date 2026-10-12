@@ -28,7 +28,10 @@ sha256 -c checksums.txt   # FreeBSD (use sha256sum on Linux)
 
 ## Configuration
 
-Grab the annotated example from this release and edit it:
+Grab the annotated example from the latest release and edit it: every command
+takes `--config <path>` explicitly (no default path), passwords go in
+`password_file` (preferred) or `password_env`, never on the command line, and
+`agent.api_endpoint` is your m2cloud control plane URL.
 
 ```sh
 curl -fsSLO https://github.com/Mt2-SAAS/m2cloud-cli/releases/latest/download/m2cloud.example.toml
@@ -41,17 +44,35 @@ Then validate (the file references secret files that must exist and be mode
 m2cloud config validate m2cloud.example.toml
 ```
 
-Key points: every command takes `--config <path>` explicitly (no default
-path); passwords go in `password_file` (preferred) or `password_env`, never
-on the command line; `agent.api_endpoint` is your m2cloud control plane URL.
-
 ## Downloads
+
+Each release carries:
 
 - `m2cloud-freebsd-amd64`
 - `m2cloud-freebsd-arm64`
 - `m2cloud-linux-amd64`
 - `m2cloud-linux-arm64`
-- `checksums.txt`
+- `m2cloud.example.toml` — annotated configuration example
+- `checksums.txt` — sha256 checksums of the binaries
+
+## Updating
+
+No re-download needed once installed:
+
+```sh
+m2cloud update --check   # report availability (always exits 0)
+m2cloud update           # download, checksum-verify and replace in place
+```
+
+`update` verifies the downloaded binary against `checksums.txt`, keeps the
+previous binary as `m2cloud.old`, and leaves the installed binary untouched on
+any failure. Restart any service running the agent afterwards.
+
+## Running as a service
+
+`m2cloud run` stays in the foreground and expects the host's supervisor to
+restart it. Unit files and the Docker setup are documented in the
+[docs site](https://Mt2-SAAS.github.io/m2cloud-cli/service/).
 
 ## Next steps after install
 
