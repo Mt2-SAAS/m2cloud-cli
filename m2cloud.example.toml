@@ -35,7 +35,7 @@ host = "127.0.0.1"
 port = 3306
 database = "account"
 user = "m2cloud_account"
-password_file = "/etc/m2cloud/secrets/account_password"
+password_file = "/usr/local/etc/m2cloud/secrets/account_password"
 
 [database.player]
 # The Metin2 player database (characters, guilds, rankings).
@@ -43,4 +43,4 @@ host = "127.0.0.1"
 port = 3306
 database = "player"
 user = "m2cloud_player"
-password_file = "/etc/m2cloud/secrets/player_password"
+password_file = "/usr/local/etc/m2cloud/secrets/player_password"
