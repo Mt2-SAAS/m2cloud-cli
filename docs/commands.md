@@ -109,4 +109,24 @@ configuration cannot be loaded or is invalid), `2` usage error.
 
 ## update
 
-Stub — prints `not implemented yet` and exits `3`.
+```sh
+m2cloud update --check
+m2cloud update
+```
+
+Checks the latest public release from `Mt2-SAAS/m2cloud-cli` through the
+GitHub API against the running binary's injected semver (`vX.Y.Z`). No config
+required. `--check` only reports availability on stdout and always exits `0`,
+even if the check fails or the current binary is unversioned (`dev`, bare SHA).
+
+`update` downloads `m2cloud-<GOOS>-<GOARCH>`, streams and verifies SHA-256
+against the release's currently unsigned `checksums.txt`, stages in the same
+directory, and atomically replaces the binary with mode `0755`. The previous
+binary is kept as `<name>.old`; on failure the installed binary stays untouched.
+It prints a reminder to restart any running service; see
+[Running as a service](service.md).
+
+Exit codes: `0` success/no update or any `--check` result; `1` operational
+failure (HTTP, checksum mismatch, unwritable install directory, or refusal to
+install from an unversioned binary); `2` usage error. See the
+[command reference](reference.md#m2cloud-update-check) for output details.

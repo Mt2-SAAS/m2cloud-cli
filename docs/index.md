@@ -53,11 +53,7 @@ introduces no new inbound surface on your game host.
 | `m2cloud run` | implemented |
 | `m2cloud doctor` | implemented |
 | `m2cloud status` | implemented |
-| `m2cloud update [--check]` | stub — exit code 3 |
-
-`m2cloud update` is the remaining stub — it prints `not implemented yet` and
-exits **3**, so scripts can tell "not built yet" apart from "failed" (1) and
-"misused" (2).
+| `m2cloud update [--check]` | implemented (M2C-013A) |
 
 ## Exit codes
 

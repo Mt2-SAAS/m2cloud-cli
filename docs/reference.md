@@ -67,7 +67,36 @@ endpoint, or timestamped in the future — is reported as `stale`.
 
 ## m2cloud update `[--check]`
 
-Stub — prints `not implemented yet`, exit 3.
+Fetches the latest public release from `Mt2-SAAS/m2cloud-cli` through the
+GitHub API (`https://api.github.com`) and compares it with the running binary's
+injected semver (`vX.Y.Z`). No config required. `M2_UPDATE_API` overrides the
+API base URL, primarily for testing.
+
+| Flag | Purpose |
+|---|---|
+| `--check` | report availability without installing; exits 0 on any completed check, 1 on operational failure |
+
+`--check` reports `update available: vX.Y.Z (current vW.X.Y)` or
+`no update available (current …, latest …)` on stdout. If the running binary is
+unversioned (such as `dev` or a bare SHA), it reports that on stdout and still
+exits **0**.
+
+Without `--check`, an available update downloads `m2cloud-<GOOS>-<GOARCH>`,
+streams and verifies its SHA-256 against the release's `checksums.txt`, and
+stages it in the installed binary's directory. It atomically renames the new
+binary over the running binary, with mode `0755`, keeping the previous binary
+as `<name>.old`. A failure leaves the installed binary untouched. The install
+directory must be writable. After installation it prints a reminder to restart
+any running service; see [Running as a service](service.md).
+
+The release checksums are currently **unsigned**. Signature verification will
+be added when the release channel signs checksums.
+
+Exit codes: **0** for success, no update, or any completed `--check` result
+(including an unversioned binary); **1** for operational failures — HTTP or
+manifest errors (also under `--check`), checksum mismatch, unwritable install
+directory, or refusal to install from an unversioned binary; **2** for usage
+errors (invalid flags or extra arguments).
 
 ## Exit codes (all commands)
 
