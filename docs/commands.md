@@ -30,7 +30,9 @@ echo "$TOKEN" | m2cloud pair --config m2cloud.toml
 
 Exchanges a one-use pairing token for this installation's identity:
 
-1. loads `--config <path.toml>` (required — there is no default path);
+1. loads its configuration — an explicit `--config <path.toml>`, `M2_CONFIG`,
+   or the platform default (`/etc/m2cloud/agent.toml` on Linux,
+   `/usr/local/etc/m2cloud/agent.toml` on FreeBSD);
 2. ensures an Ed25519 installation key pair exists under `agent.data_dir`,
    generating one on first use. An existing key is always reused, never
    regenerated: it is the installation's identity;
@@ -82,6 +84,29 @@ schema.
 Exit codes: `0` compatible, `2` partial, `3` incompatible/unknown, `4` invalid
 configuration, `5` database unreachable.
 
-## status / update
+## status
 
-Stubs — they print `not implemented yet` and exit `3`.
+```sh
+m2cloud status --config /etc/m2cloud/m2cloud.toml
+m2cloud status --json
+```
+
+Shows the local installation's status without contacting the Control API or a
+database:
+
+- the resolved configuration path, endpoint and CLI version;
+- pairing state — paired, installation id, server id;
+- the latest runtime observation left by `m2cloud run` — state, observed at,
+  agent version, last command. A state older than 90 seconds, one recorded for
+  a different installation or endpoint, or one timestamped in the future is
+  reported as `stale`;
+- the last `doctor` report — generated at, adapter, result.
+
+Empty fields print as `unknown`; `--json` prints the machine-readable report.
+Configuration resolves like every other command: `--config`, `M2_CONFIG`, then
+the platform default. Exit codes: `0` success, `1` failure (e.g. the
+configuration cannot be loaded or is invalid), `2` usage error.
+
+## update
+
+Stub — prints `not implemented yet` and exits `3`.

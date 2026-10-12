@@ -32,7 +32,7 @@ fetch -o - https://mt2-saas.github.io/m2cloud-cli/install.sh | sh
 | Variable | Purpose |
 |---|---|
 | `M2_INSTALL_DIR` | install prefix (default `/usr/local/bin`, or `~/.local/bin` without root) |
-| `M2_DOWNLOAD_BASE` | pin a version, e.g. `.../releases/download/v0.1.25` |
+| `M2_DOWNLOAD_BASE` | pin a version, e.g. `.../releases/download/v0.1.37` |
 
 ```sh
 M2_INSTALL_DIR="$HOME/.local/bin" curl -fsSL https://mt2-saas.github.io/m2cloud-cli/install.sh | sh

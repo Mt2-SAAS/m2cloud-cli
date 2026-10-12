@@ -18,6 +18,8 @@ curl -fsSL https://mt2-saas.github.io/m2cloud-cli/install.sh | sh
   recovery …).
 - **`doctor`** — diagnose the local installation: connectivity, schema
   compatibility and database privileges.
+- **`status`** — show local pairing, runtime and last-doctor status without
+  connecting anywhere.
 - **`config validate`** — validate a config file without connecting anywhere.
 
 ## How it fits together
@@ -50,11 +52,12 @@ introduces no new inbound surface on your game host.
 | `m2cloud authenticate` | implemented |
 | `m2cloud run` | implemented |
 | `m2cloud doctor` | implemented |
-| `m2cloud status` | stub — exit code 3 |
+| `m2cloud status` | implemented |
 | `m2cloud update [--check]` | stub — exit code 3 |
 
-Stubs print `not implemented yet` and exit **3**, so scripts can tell "not
-built yet" apart from "failed" (1) and "misused" (2).
+`m2cloud update` is the remaining stub — it prints `not implemented yet` and
+exits **3**, so scripts can tell "not built yet" apart from "failed" (1) and
+"misused" (2).
 
 ## Exit codes
 

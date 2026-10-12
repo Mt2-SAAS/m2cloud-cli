@@ -62,7 +62,8 @@ configuration · 5 database unreachable.
 Shows the local configuration, pairing metadata, latest runtime observation and
 the last `doctor` report. It never connects to the Control API or a database.
 Use `--json` for machine-readable output. A runtime state that has not been
-updated in 90 seconds is reported as `stale`.
+updated in 90 seconds — or one recorded for a different installation or
+endpoint, or timestamped in the future — is reported as `stale`.
 
 ## m2cloud update `[--check]`
 
