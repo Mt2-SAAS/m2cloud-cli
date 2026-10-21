@@ -33,12 +33,26 @@ sudo systemctl restart m2cloud-agent
 
 ## rc.d (FreeBSD)
 
+**Guided (recommended):** `packaging/freebsd-rc.d/install.sh` asks for the
+Control API endpoint, database settings, database password and pairing token,
+then creates the `m2cloud` service user, installs the binary, the config, the
+password files and this rc.d script, runs `m2cloud pair` and
+`m2cloud doctor`, and prints the enable commands. See
+[Install > FreeBSD guided install](install.md#freebsd-guided-install-binary-service).
+
+**Manual (reference):** the same result step by step, for operators who
+manage configuration themselves:
+
 ```sh
+sudo pw useradd m2cloud -d /var/db/m2cloud -s /usr/sbin/nologin -m
 sudo install -m 0755 m2cloud /usr/local/bin/m2cloud
 sudo install -m 0755 packaging/freebsd-rc.d/m2cloud_agent /usr/local/etc/rc.d/m2cloud_agent
+sudo mkdir -p /usr/local/etc/m2cloud/secrets
+# write /usr/local/etc/m2cloud/agent.toml (see Configuration) and the
+# password files under secrets/ (mode 0600, owned by m2cloud)
 # /etc/rc.conf:
 #   m2cloud_agent_enable="YES"
-#   m2cloud_agent_config="/etc/m2cloud/m2cloud.toml"
+#   m2cloud_agent_config="/usr/local/etc/m2cloud/agent.toml"
 sudo service m2cloud_agent start
 ```
 

@@ -44,6 +44,27 @@ systemd captures into the journal).
 
 ## FreeBSD rc.d (`freebsd-rc.d/m2cloud_agent`)
 
+**Guided install (recommended):** from a checkout or an unpacked release directory, run
+
+```sh
+sudo sh packaging/freebsd-rc.d/install.sh [path/to/m2cloud]
+```
+
+It asks for the Control API endpoint, the database host/port/names/user, the database password
+and the pairing token (secrets are read without echo), then creates the `m2cloud` user, installs
+the binary, `/usr/local/etc/m2cloud/agent.toml` (root:m2cloud 0640), the password files under
+`/usr/local/etc/m2cloud/secrets/` (m2cloud 0600) and the rc.d script, pairs via `--token-file`
+and runs `m2cloud doctor` — both as the `m2cloud` user, so the identity in `/var/db/m2cloud` is
+owned by the service account. Without a binary argument it looks for `./m2cloud`, then
+`/usr/local/bin/m2cloud`, and otherwise offers to download `m2cloud-freebsd-amd64` from the
+latest release (verified against `checksums.txt`). It does **not** enable or start the service;
+its summary prints the two commands to do so. Re-running is safe: an existing `agent.toml` is
+backed up to `agent.toml.bak.<timestamp>` first. Exit status is 0 only if pair and doctor both
+succeed.
+
+**Manual install (reference):** the same result step by step, for operators who manage config
+themselves:
+
 ```sh
 sudo pw useradd m2cloud -d /var/db/m2cloud -s /usr/sbin/nologin -m
 sudo install -m 0755 m2cloud /usr/local/bin/m2cloud
@@ -105,6 +126,8 @@ container; the named volume keeps the identity.
 | systemd unit is syntactically valid and self-consistent | `systemd-analyze verify` | CI (`ci.yml`), after installing a real binary at `/usr/local/bin/m2cloud` |
 | systemd unit actually supervises the agent (restart on crash, `StateDirectory` permissions, hardening does not break startup) | manual run on a systemd host | **not verified in CI** — no systemd container/VM in this pipeline |
 | rc.d script is syntactically valid `sh` | `sh -n` | CI (`ci.yml`) |
+| FreeBSD guided installer (`freebsd-rc.d/install.sh`) is syntactically valid `sh` | `sh -n` | CI (`ci.yml`) |
+| FreeBSD guided installer's interactive flow (user creation, file permissions, pair/doctor as `m2cloud`, release download + checksum) | — | **not verified in CI** (ADR-014, D12): no FreeBSD runner, same caveat as the rc.d row below. Closes against a real FreeBSD host (or a local VM). |
 | rc.d script actually supervises the agent under FreeBSD (`daemon(8)` behaviour, user/permissions, `service ... stop` signal delivery, log rotation) | — | **not verified in CI** (ADR-014, D12): GitHub Actions has no native FreeBSD runner. The plan's `vmactions/freebsd-vm` smoke test (per-release `version`/`config validate`/`doctor`/`run` startup) covers the binary itself, not the rc.d supervision path. This closes against a real FreeBSD host (or a local VM) at the first FreeBSD beta customer, per ADR-014's trigger. |
 | Docker image builds and the binary runs inside it (`version`, `config validate`) | `docker build` + `docker run --entrypoint ... version` | CI (`ci.yml`), when the runner permits Docker-in-Docker in reasonable time |
 | Docker image under real supervision (`restart: unless-stopped`, graceful `SIGTERM` shutdown, volume persistence across recreation) | — | **not verified in CI** |

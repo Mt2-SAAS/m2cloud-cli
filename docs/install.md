@@ -17,6 +17,41 @@ On FreeBSD without `curl`:
 fetch -o - https://mt2-saas.github.io/m2cloud-cli/install.sh | sh
 ```
 
+## FreeBSD: guided install (binary + service)
+
+The one-liner above installs **only the binary**. On FreeBSD, the guided
+installer sets up the whole agent — binary, `m2cloud` service user,
+configuration, database password files, rc.d service, pairing and a
+`m2cloud doctor` check — by asking a handful of questions. It is the
+recommended path if the agent will run as a background service on the server.
+
+Download the installer and the rc.d script it installs (both live in the
+public repo's `packaging/` tree), then run it as root:
+
+```sh
+fetch -o install.sh https://raw.githubusercontent.com/Mt2-SAAS/m2cloud-cli/main/packaging/freebsd-rc.d/install.sh
+fetch -o m2cloud_agent https://raw.githubusercontent.com/Mt2-SAAS/m2cloud-cli/main/packaging/freebsd-rc.d/m2cloud_agent
+sudo sh install.sh
+```
+
+It asks for (Enter accepts the default shown in brackets):
+
+- the Control API endpoint (`https://…`, required);
+- database host `127.0.0.1`, port `3306`, account database `account`,
+  player database `player`, database user `mt2` — one user for both
+  databases;
+- the database password, twice without echo — the **same password** is
+  written to both password files (`0600`, owned by the service user);
+- the pairing token (no echo), used to run `m2cloud pair` for you.
+
+If no `m2cloud` binary is found next to the script or in `/usr/local/bin`,
+it offers to download the latest `m2cloud-freebsd-amd64` release and verify
+it against `checksums.txt`. It ends with `m2cloud doctor` and prints the two
+commands to enable and start the service — it never enables or starts the
+service itself. Re-running is safe (an existing `agent.toml` is backed up
+first). See [Service > rc.d](service.md#rcd-freebsd) for what it installs
+and the manual equivalent.
+
 ## What the installer does
 
 1. Detects OS and architecture (`uname -s` / `uname -m`).
